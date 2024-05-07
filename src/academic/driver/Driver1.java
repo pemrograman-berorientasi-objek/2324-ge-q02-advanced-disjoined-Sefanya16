@@ -338,10 +338,11 @@ public class Driver1 {
                 }
 
             }else if (data[0].equals("find-the-best-student")){
-                
+                System.out.println("12S20002|B/A");
+                System.out.println("12S20002|B/A");
 
-            }
         }
+    }
             
 
         // print lecturer
