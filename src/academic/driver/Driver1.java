@@ -68,7 +68,6 @@ public class Driver1 {
                         if (co.getYear().equals("odd")) {
                             System.out.print(co.getCode() + "|" + c.getName() + "|" + c.getCredit() + "|"
                                     + c.getPassingGrade() + "|" + co.getAcademicYear() + "|" + co.getYear() + "|");
-                            // Combine course opening details with associated lecturer details
                             StringBuilder lecturerDetails = new StringBuilder();
                             for (String initial : co.getLecturerInitialList()) {
                                 for (Lecturer l : lecturer) {
@@ -337,9 +336,40 @@ public class Driver1 {
                     }
                 }
 
-            }else if (data[0].equals("find-the-best-student")){
-                
+            
+        }else if (data[0].equals("find-the-best-student")) {
+            String academicYear = data[1];
+            String semesterType = data[2];
+        
+            Student bestStudent = null;
+            double highestGpa = 0.0;
+        
+            for (Student s : student) {
+                double gpa = 0.0;
+                int totalCredit = 0;
 
+                
+                for (Enrollment e : enrollment) {
+                    if (e.getStudent().equals(s.getId()) && e.getAcademicYear().equals(academicYear)) {
+                        if ((semesterType.equals("odd")) || 
+                            (semesterType.equals("even") )) {
+                                
+                        }
+                    }
+                }
+        
+                if (gpa > highestGpa) {
+                    highestGpa = gpa;
+                    bestStudent = s;
+                }
+            
+            }
+        
+            if (bestStudent != null) {
+                System.out.println("Best student in " + academicYear + " " + semesterType + " semester: " + bestStudent.getName());
+            } else {
+                System.out.println("No student found for " + academicYear + " " + semesterType + " semester");
+            }
         }
     }
             
@@ -371,9 +401,6 @@ public class Driver1 {
 
             }
         }
-
-        System.out.println("12S20002|B/A");
-        System.out.println("12S20002|B/A");
 
         masukan.close();
     }
