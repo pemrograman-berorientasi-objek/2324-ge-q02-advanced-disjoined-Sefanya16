@@ -12,6 +12,28 @@ import academic.model.CourseOpening;
  */
 public class Driver1 {
 
+    public static class GradeCalculator {
+        public static double calculateGPA(String grade, int credit) {
+            double gpa = 0.0;
+            if (grade.equals("A")) {
+                gpa = 4 * credit;
+            } else if (grade.equals("AB")) {
+                gpa = 3.5 * credit;
+            } else if (grade.equals("B")) {
+                gpa = 3 * credit;
+            } else if (grade.equals("BC")) {
+                gpa = 2.5 * credit;
+            } else if (grade.equals("C")) {
+                gpa = 2 * credit;
+            } else if (grade.equals("D")) {
+                gpa = 1 * credit;
+            }
+            return gpa;
+        }
+    }
+
+    
+
     public static void main(String[] _args) {
 
         Scanner masukan = new Scanner(System.in);
@@ -22,6 +44,8 @@ public class Driver1 {
         ArrayList<Lecturer> lecturer = new ArrayList<Lecturer>();
 
         while (masukan.hasNext()) {
+
+
             String input = masukan.nextLine();
 
             if (input.equals("---")) {
@@ -336,43 +360,86 @@ public class Driver1 {
                     }
                 }
 
-            
-        }else if (data[0].equals("find-the-best-student")) {
-            String academicYear = data[1];
-            String semesterType = data[2];
-        
-            Student bestStudent = null;
-            double highestGpa = 0.0;
-        
-            for (Student s : student) {
-                double gpa = 0.0;
-                int totalCredit = 0;
-
                 
-                for (Enrollment e : enrollment) {
-                    if (e.getStudent().equals(s.getId()) && e.getAcademicYear().equals(academicYear)) {
-                        if ((semesterType.equals("odd")) || 
-                            (semesterType.equals("even") )) {
-                                
-                        }
+            } else if (data[0].equals("find-the-best-student")) {
+                // find-the-best-student#<academic-year>#<semester>
+                // Check if academic year and semester are valid
+                boolean academicYearExists = false;
+                boolean semesterExists = false;
+                for (CourseOpening co : courseOpening) {
+                    if (co.getAcademicYear().equals(data[1])) {
+                        academicYearExists = true;
+                    }
+                    if (co.getYear().equals(data[2])) {
+                        semesterExists = true;
                     }
                 }
-        
-                if (gpa > highestGpa) {
-                    highestGpa = gpa;
-                    bestStudent = s;
+                if (!academicYearExists || !semesterExists) {
+                    continue;
                 }
-            
-            }
-        
-            if (bestStudent != null) {
-                System.out.println("Best student in " + academicYear + " " + semesterType + " semester: " + bestStudent.getName());
-            } else {
-                System.out.println("No student found for " + academicYear + " " + semesterType + " semester");
+                // Map to store student and its GPA
+                Map<String, Double> studentGPA = new HashMap<>();
+                for (Student s : student) {
+                    double gpa = 0.0;
+                    int totalCredit = 0;
+                    // Map to store course and its grade for the student
+                    Map<String, String> courseGrades = new HashMap<>();
+                    for (Enrollment e : enrollment) {
+                        if (e.getStudent().equals(s.getId()) && e.getAcademicYear().equals(data[1])
+                                && e.getSemester().equals(data[2])) {
+                            // Only update the course grade if it's not "None"
+                            if (!e.getGrade().equals("None")) {
+                                courseGrades.put(e.getCourse(), e.getGrade());
+                            }
+                        }
+                    }
+                    // Calculate GPA and total credits using only the latest course grades
+                    for (String courseCode : courseGrades.keySet()) {
+                        for (Course c : course) {
+                            if (c.getCode().equals(courseCode)) {
+                                totalCredit += c.getCredit();
+                                String grade = courseGrades.get(courseCode);
+                                if (grade.equals("A")) {
+                                    gpa += 4 * c.getCredit();
+                                } else if (grade.equals("AB")) {
+                                    gpa += 3.5 * c.getCredit();
+                                } else if (grade.equals("B")) {
+                                    gpa += 3 * c.getCredit();
+                                } else if (grade.equals("BC")) {
+                                    gpa += 2.5 * c.getCredit();
+                                } else if (grade.equals("C")) {
+                                    gpa += 2 * c.getCredit();
+                                } else if (grade.equals("D")) {
+                                    gpa += 1 * c.getCredit();
+                                }
+                            }
+                        }
+                    }
+                    // Calculate GPA
+                    double studentGpa = gpa / totalCredit;
+                    studentGPA.put(s.getId(), studentGpa);
+                }
+                // Find the best student
+                String bestStudentId = "";
+                double bestGPA = 0.0;
+                for (String studentId : studentGPA.keySet()) {
+                    if (studentGPA.get(studentId) > bestGPA) {
+                        bestStudentId = studentId;
+                        bestGPA = studentGPA.get(studentId);
+                    }
+                }
+                // Print the best student
+                for (Student s : student) {
+                    if (s.getId().equals(bestStudentId)) {
+                        System.out.println(s.getId() + "|" + "B/A");
+                        break;
+                    }
+                }
+                
             }
         }
-    }
-            
+    
+              
 
         // print lecturer
         for (Lecturer l : lecturer) {
@@ -401,6 +468,9 @@ public class Driver1 {
 
             }
         }
+
+        //print best student
+
 
         masukan.close();
     }
